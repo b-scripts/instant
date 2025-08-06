@@ -3,6 +3,46 @@
 --!divine-intellect
 -- https://discord.gg/ZztVsAt3yr
 
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "--------------",-- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "Loading",
+   LoadingSubtitle = "by Collect0r",
+   ShowText = "instntly!!", -- for mobile users to unhide rayfield, change if you'd like
+   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Big Hub"
+   },
+
+   Discord = {
+      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+      RememberJoins = false -- Set this to false to make them join the discord every time they load it up
+   },
+
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {""} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
+})
+
+Rayfield:SetVisibility(false)
+--[[-----------------------------------------------
+        using rayfield for better status
+]]-------------------------------------------------
 local function string_find(s, pattern)
 	return string.find(s, pattern, nil, true)
 end
@@ -2917,7 +2957,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	if IsolatePlayers then
 		IgnoreList.Players = false
 	end
-
+--[[]
 	if OPTIONS.ShowStatus then
 		do
 			local Exists = GLOBAL_ENV._statustext
@@ -2980,7 +3020,9 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				end
 			end
 		end
-	end
+	end]]--
+
+
 
 	do
 		local SafeMode = OPTIONS.SafeMode
@@ -3059,20 +3101,20 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				local Log10 = math.log10(elapse_t)
 				local ExtraTime = 10
 				if ok then
-					StatusText.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, get_size_format())
-					StatusText.TextColor3 = Color3.new(0, 1)
-					task.wait(Log10 * 2 + ExtraTime)
-				else
-					if Loading then
-						task.cancel(Loading)
-						Loading = nil
-					end
-					StatusText.Text = "Failed! Check F9 console for more info"
-					StatusText.TextColor3 = Color3.new(1)
-					warn("Error found while saving:")
-					warn(err)
-					task.wait(Log10 + ExtraTime)
-				end
+                      Rayfield:Notify({
+                        Title = "Save Complete",
+                        Content = string.format("Saved successfully! Time %.3f seconds; Size %s", elapse_t, get_size_format()),
+                        Duration = 6.5,
+                        })
+                 else
+                      Rayfield:Notify({
+                      Title = "Save Failed",
+                      Content = "Failed to save! Check console for details",
+                     Duration = 6.5,
+                    })
+    warn("Error found while saving:")
+    warn(err)
+end
 				StatusText:Destroy()
 			end)
 		end
