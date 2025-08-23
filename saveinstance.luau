@@ -1109,16 +1109,15 @@ do
 	XML_Descriptors[descriptorName] = XML_Descriptors[redirectName]
 end
 if CLIENT_VERSION < math.huge then -- math.huge because unknown yet
-	-- ! For sake of compatibility with older clients, Roblox currently does this too but it WILL probably change in the future so keep track of that. ONCE ROBLOX MOVES AWAY FROM THIS, MAKE SURE TO KEEP SUPPORT FOR VERY OLD CLIENTS; 645 <= CLIENT Ver < ??? (ver when roblox moves away), THIS IS COMPLICATED SO PROBABLY NO SUPPORT, JUST USE OLDER VER OF USSI; NEWEST CLIENTS
-	XML_Descriptors.Content = XML_Descriptors.ContentId
+    -- ! For sake of compatibility with older clients, Roblox currently does this too but it WILL probably change in the future so keep track of that. ONCE ROBLOX MOVES AWAY FROM THIS, MAKE SURE TO KEEP SUPPORT FOR VERY OLD CLIENTS; 645 <= CLIENT Ver < ??? (ver when roblox moves away), THIS IS COMPLICATED SO PROBABLY NO SUPPORT, JUST USE OLDER VER OF USSI; NEWEST CLIENTS
+    XML_Descriptors.Content = XML_Descriptors.ContentId
 end
 
 local ClassList
-
 do
-	local ClassPropertyExceptions = {
-		Whitelist = { TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }) },
-		Blacklist = {
+    local ClassPropertyExceptions = {
+        Whitelist = { TriangleMeshPart = ArrayToDict({ "CollisionFidelity" }) },
+        Blacklist = {
 			LuaSourceContainer = ArrayToDict({ "ScriptGuid" }),
 			Instance = ArrayToDict({ "UniqueId", "HistoryId" }),
 		},
@@ -1552,7 +1551,7 @@ do
 								if NotScriptableFix then
 									Property.Fallback = type(NotScriptableFix) == "function" and NotScriptableFix
 										or PreferredDescriptorName and function(instance)
-											local o, r = pcall(index, instance, PreferredDescriptorName)
+																																									local o, r = pcall(index, instance, PreferredDescriptorName)
 											if o then
 												return r
 											end
@@ -1568,30 +1567,29 @@ do
 								end
 							end
 							ClassProperties[ClassProperties_size] = Property
-							ClassProperties_size += 1
+                            ClassProperties_size += 1
 
-							-- end
-						end
-					end
-				end
-			end
+                            -- end
+                        end
+                    end
 
-			classList[ClassName] = Class
-		end
+                    classList[ClassName] = Class
+                end
 
-		-- classList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering through properties to remove this
+                -- classList.Instance.Properties.Parent = nil -- ? Not sure if this is a better option than filtering through properties to remove this
+            end
+        end
+        return classList
+    end
 
-		return classList
-	end
-
-	local ok, result = pcall(FetchAPI)
-	if ok then
-		ClassList = result
-	else
-		warn("Failed to load the API Dump")
-		warn(result)
-		return
-	end
+    local ok, result = pcall(FetchAPI)
+    if ok then
+        ClassList = result
+    else
+        warn("Failed to load the API Dump")
+        warn(result)
+        return
+    end
 end
 
 local GLOBAL_ENV = getgenv and getgenv() or _G or shared
@@ -1693,68 +1691,75 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 	end
 
 	local currentstr, currentsize, totalsize, chunks = "", 0, 0, table.create(1)
-	local savebuffer, savebuffer_size = {}, 1
-	local header =
-		'<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/ZztVsAt3yr --><roblox version="4">'
+    local savebuffer, savebuffer_size = {}, 1
+    local header =
+        '<!-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/ZztVsAt3yr --><roblox version="4">'
 
-	local StatusText
 
-	local OPTIONS = {
-		mode = "optimized",
-		noscripts = false,
-		scriptcache = true,
-		-- decomptype = "",
-		timeout = 10,
-		-- * New:
-		__DEBUG_MODE = false,
+    local function send_notification(title, text, duration)
+        pcall(service.StarterGui.SetCore, service.StarterGui, "SendNotification", {
+            Title = title,
+            Text = text,
+            Duration = duration or 5,
+        })
+    end
 
-		-- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
-		Callback = false,
-		--Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
-		-- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
-		-- DisableCompression = false, --Description: Disables compression in the binary output
+    local OPTIONS = {
+        mode = "optimized",
+        noscripts = false,
+        scriptcache = true,
+        -- decomptype = "",
+        timeout = 10,
+        -- * New:
+        __DEBUG_MODE = false,
 
-		DecompileJobless = false,
-		DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
+        -- Binary = false, -- true in syn newer versions (false in our case because no binary support yet), Description: Saves everything in Binary Mode (rbxl/rbxm).
+        Callback = false,
+        --Clipboard/CopyToClipboard = false, -- Description: If set to true, the serialized data will be set to the clipboard, which can be later pasted into studio easily. Useful for saving models.
+        -- MaxThreads = 3 -- Description: The number of decompilation threads that can run at once. More threads means it can decompile for scripts at a time.
+        -- DisableCompression = false, --Description: Disables compression in the binary output
+
+        DecompileJobless = false,
+        DecompileIgnore = { -- * Clean these up (merged Old Syn and New Syn)
 			-- "Chat",
 			"TextChatService",
 			ModuleScript = nil,
 		},
-		IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
-		SaveBytecode = false,
+        IgnoreDefaultPlayerScripts = EXECUTOR_NAME ~= "Wave" and true,
+        SaveBytecode = false,
 
-		IgnoreProperties = {},
+        IgnoreProperties = {},
 
-		IgnoreList = { "CoreGui", "CorePackages" },
+        IgnoreList = { "CoreGui", "CorePackages" },
 
-		ExtraInstances = {},
-		NilInstances = false,
-		NilInstancesFixes = {},
+        ExtraInstances = {},
+        NilInstances = false,
+        NilInstancesFixes = {},
 
-		SaveCacheInterval = 0x1600 * 10,
-		ShowStatus = true,
-		SafeMode = false,
-		ShutdownWhenDone = false,
-		AntiIdle = true,
-		Anonymous = false,
-		ReadMe = true,
-		FilePath = false,
-		Object = false,
-		IsModel = false,
+        SaveCacheInterval = 0x1600 * 10,
+        ShowStatus = true,
+        SafeMode = false,
+        ShutdownWhenDone = false,
+        AntiIdle = true,
+        Anonymous = false,
+        ReadMe = true,
+        FilePath = false,
+        Object = false,
+        IsModel = false,
 
-		IgnoreDefaultProperties = true,
-		IgnoreNotArchivable = true,
-		IgnorePropertiesOfNotScriptsOnScriptsMode = false,
-		IgnoreSpecialProperties = ArrayToDict({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
+        IgnoreDefaultProperties = true,
+        IgnoreNotArchivable = true,
+        IgnorePropertiesOfNotScriptsOnScriptsMode = false,
+        IgnoreSpecialProperties = ArrayToDict({ "Fluxus", "Delta", "Solara" })[EXECUTOR_NAME] or false, -- ! Please submit more Executors that crash on gethiddenproperty (with this disabled basically)
 
-		IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
-		IsolateLocalPlayerCharacter = false,
-		IsolatePlayers = false,
-		IsolateStarterPlayer = false,
-		RemovePlayerCharacters = true,
+        IsolateLocalPlayer = false, --  #service.StarterGui:GetChildren() == 0
+        IsolateLocalPlayerCharacter = false,
+        IsolatePlayers = false,
+        IsolateStarterPlayer = false,
+        RemovePlayerCharacters = true,
 
-		SaveNotCreatable = false,
-		NotCreatableFixes = {
+        SaveNotCreatable = false,
+        NotCreatableFixes = {
 			-- "CloudLocalizationTable",
 			-- "InputObject",
 			-- "LodDataEntity",
@@ -1772,14 +1777,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			"TouchTransmitter",
 		},
 
-		-- ! Risky
+        -- ! Risky
 
-		IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
-		SharedStringOverwrite = false,
-		TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
-		AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
+        IgnoreSharedStrings = EXECUTOR_NAME ~= "Wave" and true,
+        SharedStringOverwrite = false,
+        TreatUnionsAsParts = EXECUTOR_NAME == "Solara", -- TODO Temporary true (once removed, remove Note from docs too)
+        AlternativeWritefile = not ArrayToDict({ "WRD", "Xeno", "Zorara" })[EXECUTOR_NAME],
 
-		OptionsAliases = { -- You can't really modify these as a user
+        OptionsAliases = { -- You can't really modify these as a user
 			DecompileTimeout = "timeout",
 			FileName = "FilePath",
 			IgnoreArchivable = "IgnoreNotArchivable",
@@ -1787,148 +1792,148 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			SaveNonCreatable = "SaveNotCreatable",
 			SavePlayers = "IsolatePlayers",
 		},
-	}
+    }
 
-	local OPTIONS_lowercase, CustomOptions_valid = {}, {}
-	for option_name in OPTIONS do
-		local option_name_lowercase = string.lower(option_name)
-		if OPTIONS_lowercase[option_name_lowercase] then
-			warn("DUPLICATE OPTION", option_name)
-		else
-			OPTIONS_lowercase[option_name_lowercase] = option_name
-		end
-	end
-	for option_alias, option_name in OPTIONS.OptionsAliases do
-		local option_name_lowercase = string.lower(option_alias)
-		if OPTIONS_lowercase[option_name_lowercase] then
-			warn("DUPLICATE ALIAS", option_alias)
-		else
-			OPTIONS_lowercase[option_name_lowercase] = option_name
-		end
-	end
+    local OPTIONS_lowercase, CustomOptions_valid = {}, {}
+    for option_name in OPTIONS do
+        local option_name_lowercase = string.lower(option_name)
+        if OPTIONS_lowercase[option_name_lowercase] then
+            warn("DUPLICATE OPTION", option_name)
+        else
+            OPTIONS_lowercase[option_name_lowercase] = option_name
+        end
+    end
+    for option_alias, option_name in OPTIONS.OptionsAliases do
+        local option_name_lowercase = string.lower(option_alias)
+        if OPTIONS_lowercase[option_name_lowercase] then
+            warn("DUPLICATE ALIAS", option_alias)
+        else
+            OPTIONS_lowercase[option_name_lowercase] = option_name
+        end
+    end
 
-	do -- * Load Settings
-		local function construct_NilinstanceFix(Name, ClassName, Separate)
-			return function(instance, instancePropertyOverrides)
-				local Exists
+    do -- * Load Settings
+        local function construct_NilinstanceFix(Name, ClassName, Separate)
+            return function(instance, instancePropertyOverrides)
+                local Exists
 
-				if not Separate then
-					Exists = OPTIONS.NilInstancesFixes[Name]
-				end
+                if not Separate then
+                    Exists = OPTIONS.NilInstancesFixes[Name]
+                end
 
-				local Fix
+                local Fix
 
-				local DoesntExist = not Exists
-				if DoesntExist then
-					Fix = Instance.new(ClassName)
-					if not Separate then
-						OPTIONS.NilInstancesFixes[Name] = Fix
-					end
-					-- Fix.Name = Name
+                local DoesntExist = not Exists
+                if DoesntExist then
+                    Fix = Instance.new(ClassName)
+                    if not Separate then
+                        OPTIONS.NilInstancesFixes[Name] = Fix
+                    end
+                    -- Fix.Name = Name
 
-					instancePropertyOverrides[Fix] =
-						{ __SaveSpecific = true, __Children = { instance }, Properties = { Name = Name } }
-				else
-					Fix = Exists
-					table.insert(instancePropertyOverrides[Fix].__Children, instance)
-				end
+                    instancePropertyOverrides[Fix] =
+                        { __SaveSpecific = true, __Children = { instance }, Properties = { Name = Name } }
+                else
+                    Fix = Exists
+                    table.insert(instancePropertyOverrides[Fix].__Children, instance)
+                end
 
-				-- InstancesOverrides[instance].Parent = AnimationController
-				if DoesntExist then
-					return Fix
-				end
-			end
-		end
+                -- InstancesOverrides[instance].Parent = AnimationController
+                if DoesntExist then
+                    return Fix
+                end
+            end
+        end
 
-		-- TODO: Merge BaseWrap & Attachment & AdPortal fix (put all under MeshPart container)
-		-- TODO?:
-		-- DebuggerWatch DebuggerWatch must be a child of ScriptDebugger
-		-- PluginAction Parent of PluginAction must be Plugin or PluginMenu that created it!
-		OPTIONS.NilInstancesFixes.Animator = construct_NilinstanceFix(
-			"Animator has to be placed under Humanoid or AnimationController",
-			"AnimationController"
-		)
-		OPTIONS.NilInstancesFixes.AdPortal = construct_NilinstanceFix("AdPortal must be parented to a Part", "Part")
-		OPTIONS.NilInstancesFixes.Attachment =
-			construct_NilinstanceFix("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
-		OPTIONS.NilInstancesFixes.BaseWrap =
-			construct_NilinstanceFix("BaseWrap must be parented to a MeshPart", "MeshPart")
-		OPTIONS.NilInstancesFixes.PackageLink =
-			construct_NilinstanceFix("Package already has a PackageLink", "Folder", true)
+        -- TODO: Merge BaseWrap & Attachment & AdPortal fix (put all under MeshPart container)
+        -- TODO?:
+        -- DebuggerWatch DebuggerWatch must be a child of ScriptDebugger
+        -- PluginAction Parent of PluginAction must be Plugin or PluginMenu that created it!
+        OPTIONS.NilInstancesFixes.Animator = construct_NilinstanceFix(
+            "Animator has to be placed under Humanoid or AnimationController",
+            "AnimationController"
+        )
+        OPTIONS.NilInstancesFixes.AdPortal = construct_NilinstanceFix("AdPortal must be parented to a Part", "Part")
+        OPTIONS.NilInstancesFixes.Attachment =
+            construct_NilinstanceFix("Attachments must be parented to a BasePart or another Attachment", "Part") -- * Bones inherit from Attachments
+        OPTIONS.NilInstancesFixes.BaseWrap =
+            construct_NilinstanceFix("BaseWrap must be parented to a MeshPart", "MeshPart")
+        OPTIONS.NilInstancesFixes.PackageLink =
+            construct_NilinstanceFix("Package already has a PackageLink", "Folder", true)
 
-		if CustomOptions2 and type(CustomOptions2) == "table" then
-			local tmp = CustomOptions
-			local Type = typeof(tmp)
-			CustomOptions = CustomOptions2
-			if Type == "Instance" then
-				CustomOptions.Object = tmp
-			elseif Type == "table" and typeof(tmp[1]) == "Instance" then
-				CustomOptions.ExtraInstances = tmp
-				OPTIONS.IsModel = true
-			end
-		end
+        if CustomOptions2 and type(CustomOptions2) == "table" then
+            local tmp = CustomOptions
+            local Type = typeof(tmp)
+            CustomOptions = CustomOptions2
+            if Type == "Instance" then
+                CustomOptions.Object = tmp
+            elseif Type == "table" and typeof(tmp[1]) == "Instance" then
+                CustomOptions.ExtraInstances = tmp
+                OPTIONS.IsModel = true
+            end
+        end
 
-		local Type = typeof(CustomOptions)
+        local Type = typeof(CustomOptions)
 
-		if Type == "table" then
-			if typeof(CustomOptions[1]) == "Instance" then
-				OPTIONS.mode = "invalidmode"
-				OPTIONS.ExtraInstances = CustomOptions
-				OPTIONS.IsModel = true
-				CustomOptions = {}
-			else
-				for key, value in CustomOptions do
-					local option = OPTIONS_lowercase[string.lower(key)]
+        if Type == "table" then
+            if typeof(CustomOptions[1]) == "Instance" then
+                OPTIONS.mode = "invalidmode"
+                OPTIONS.ExtraInstances = CustomOptions
+                OPTIONS.IsModel = true
+                CustomOptions = {}
+            else
+                for key, value in CustomOptions do
+                    local option = OPTIONS_lowercase[string.lower(key)]
 
-					if option then
-						OPTIONS[option] = value
-						CustomOptions_valid[option] = true
-					end
-				end
-				local Decompile = CustomOptions.Decompile
-				if Decompile ~= nil then
-					OPTIONS.noscripts = not Decompile
-				end
-				local SavePlayerCharacters = CustomOptions.SavePlayerCharacters
-				if SavePlayerCharacters ~= nil then
-					OPTIONS.RemovePlayerCharacters = not SavePlayerCharacters
-				end
-				local RemovePlayers = CustomOptions.RemovePlayers
-				if RemovePlayers ~= nil then
-					OPTIONS.IsolatePlayers = not RemovePlayers
-				end
-			end
-		elseif Type == "Instance" then
-			OPTIONS.mode = "invalidmode"
-			OPTIONS.Object = CustomOptions
-			CustomOptions = {}
-		else
-			CustomOptions = {}
-		end
-	end
+                    if option then
+                        OPTIONS[option] = value
+                        CustomOptions_valid[option] = true
+                    end
+                end
+                local Decompile = CustomOptions.Decompile
+                if Decompile ~= nil then
+                    OPTIONS.noscripts = not Decompile
+                end
+                local SavePlayerCharacters = CustomOptions.SavePlayerCharacters
+                if SavePlayerCharacters ~= nil then
+                    OPTIONS.RemovePlayerCharacters = not SavePlayerCharacters
+                end
+                local RemovePlayers = CustomOptions.RemovePlayers
+                if RemovePlayers ~= nil then
+                    OPTIONS.IsolatePlayers = not RemovePlayers
+                end
+            end
+        elseif Type == "Instance" then
+            OPTIONS.mode = "invalidmode"
+            OPTIONS.Object = CustomOptions
+            CustomOptions = {}
+        else
+            CustomOptions = {}
+        end
+    end
 
-	if OPTIONS.IgnoreDefaultPlayerScripts then
-		-- TODO This is a bad workaround, find a better automatic way
-		-- TODO Look into https://robloxapi.github.io/ref/class/LuaSourceContainer.html#member-isPlayerScript
-		local DecompileIgnore = OPTIONS.DecompileIgnore
+    if OPTIONS.IgnoreDefaultPlayerScripts then
+        -- TODO This is a bad workaround, find a better automatic way
+        -- TODO Look into https://robloxapi.github.io/ref/class/LuaSourceContainer.html#member-isPlayerScript
+        local DecompileIgnore = OPTIONS.DecompileIgnore
 
-		local Path = service.StarterPlayer:FindFirstChild("StarterPlayerScripts")
-		local Exclude = { ModuleScript = { "PlayerModule" }, LocalScript = { "RbxCharacterSounds" } }
-		if Path then
-			for _, className in Exclude do
-				for _, name in className do
-					local Found = Path:FindFirstChild(name)
-					if Found then
-						table.insert(DecompileIgnore, Found)
-					end
-				end
-			end
-		end
-	end
+        local Path = service.StarterPlayer:FindFirstChild("StarterPlayerScripts")
+        local Exclude = { ModuleScript = { "PlayerModule" }, LocalScript = { "RbxCharacterSounds" } }
+        if Path then
+            for _, className in Exclude do
+                for _, name in className do
+                    local Found = Path:FindFirstChild(name)
+                    if Found then
+                        table.insert(DecompileIgnore, Found)
+                    end
+                end
+            end
+        end
+    end
 
-	local InstancesOverrides = {}
+    local InstancesOverrides = {}
 
-	local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
+    local DecompileIgnore, IgnoreList, IgnoreProperties, NotCreatableFixes =
 		ArrayToDict(OPTIONS.DecompileIgnore, true),
 		ArrayToDict(OPTIONS.IgnoreList, true),
 		ArrayToDict(OPTIONS.IgnoreProperties),
@@ -2036,7 +2041,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 				or sanitizeFileName("model " .. PlaceName .. " " .. (ToSaveInstance or tmp[1] or game):GetFullName())
 			) .. ".rbxmx"
 		else
-			placename = (FilePath or sanitizeFileName("place " .. PlaceName)) .. ".rbxlx"
+			placename = (FilePath or sanitizeFileName("" .. PlaceName)) .. ".rbxl"
 		end
 
 		if GLOBAL_ENV[placename] then
@@ -2073,7 +2078,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			for _, serviceName in
 				{
 					"Workspace",
-					"Players",
+				--	"Players",
 					"Lighting",
 					"MaterialService",
 					"ReplicatedFirst",
@@ -2170,50 +2175,14 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	local Loading
 	local function run_with_loading(text, keepStatus, waitForRender, taskFunction, ...)
-		local previousStatus
+		if OPTIONS.ShowStatus then
+            send_notification("SaveInstance", text)
+        end
+        if waitForRender then
+            wait_for_render()
+        end
 
-		if StatusText then
-			if keepStatus then
-				previousStatus = StatusText.Text
-			end
-			Loading = task.spawn(function()
-				local spinner_count = 0
-				local chars = { "|", "/", "—", "\\" }
-				local chars_size = #chars
-
-				local function getLoadingText()
-					spinner_count += 1
-
-					if chars_size < spinner_count then
-						spinner_count = 1
-					end
-
-					return chars[spinner_count]
-				end
-
-				text ..= " "
-
-				while true do
-					StatusText.Text = text .. getLoadingText()
-					task.wait(0.25)
-				end
-			end)
-			if waitForRender then
-				wait_for_render()
-			end
-		end
-
-		local result = { taskFunction(...) }
-
-		if Loading then
-			task.cancel(Loading)
-			Loading = nil
-			if previousStatus then
-				StatusText.Text = previousStatus
-			end
-		end
-
-		return unpack(result)
+        return taskFunction(...)
 	end
 
 	local function construct_TimeoutHandler(timeout, f, timeout_ret)
@@ -2513,15 +2482,15 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			currentstr, currentsize = "", 0
 		end
 
-		if StatusText then
-			StatusText.Text = "Saving.. Size: " .. get_size_format()
-		end
-		-- ? Needed for at least 1fps (status text)
-		-- task.wait()
-		wait_for_render()
+		-- if StatusText then
+		-- 	StatusText.Text = "Saving.. Size: " .. get_size_format()
+		-- end
+        -- ? Needed for at least 1fps (status text)
+        -- task.wait()
+        wait_for_render()
 	end
 
-	local function save_specific(className, properties)
+    local function save_specific(className, properties)
 		local Ref = Instance.new(className) -- ! Assuming anything passed here is Creatable
 		local Item = ReturnItem(Ref.ClassName, Ref)
 
@@ -3224,73 +3193,17 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 
 	if IsolatePlayers then
 		IgnoreList.Players = false
-	end
+    end
 
-	if OPTIONS.ShowStatus then
-		do
-			local Exists = GLOBAL_ENV._statustext
-			if Exists then
-				Exists:Destroy()
-			end
-		end
+    if workspace.CurrentCamera then
+        IgnoreList[workspace.CurrentCamera] = true
+    end
 
-		local StatusGui = Instance.new("ScreenGui")
+    if OPTIONS.ShowStatus then
+        send_notification("SaveInstance", "Saving...")
+    end
 
-		GLOBAL_ENV._statustext = StatusGui
-
-		StatusGui.DisplayOrder = 2e9
-		pcall(function() -- ? Compatibility with level 2
-			StatusGui.OnTopOfCoreBlur = true
-		end)
-
-		StatusText = Instance.new("TextLabel")
-
-		StatusText.Text = "Saving..."
-
-		StatusText.BackgroundTransparency = 1
-		StatusText.Font = Enum.Font.Code
-		StatusText.AnchorPoint = Vector2.new(1)
-		StatusText.Position = UDim2.new(1)
-		StatusText.Size = UDim2.new(0.3, 0, 0, 20)
-
-		StatusText.TextColor3 = Color3.new(1, 1, 1)
-		StatusText.TextScaled = true
-		StatusText.TextStrokeTransparency = 0.7
-		StatusText.TextXAlignment = Enum.TextXAlignment.Right
-		StatusText.TextYAlignment = Enum.TextYAlignment.Top
-
-		StatusText.Parent = StatusGui
-
-		local function randomString()
-			local length = math.random(10, 20)
-			local randomarray = table.create(length)
-			for i = 1, length do
-				randomarray[i] = string.char(math.random(32, 126))
-			end
-			return table.concat(randomarray)
-		end
-
-		if global_container.gethui then
-			StatusGui.Name = randomString()
-			StatusGui.Parent = global_container.gethui()
-		else
-			if global_container.protectgui then
-				StatusGui.Name = randomString()
-				global_container.protectgui(StatusGui)
-				StatusGui.Parent = game:GetService("CoreGui")
-			else
-				local RobloxGui = game:GetService("CoreGui"):FindFirstChild("RobloxGui")
-				if RobloxGui then
-					StatusGui.Parent = RobloxGui
-				else
-					StatusGui.Name = randomString()
-					StatusGui.Parent = game:GetService("CoreGui")
-				end
-			end
-		end
-	end
-
-	do
+    do
 		local SafeMode = OPTIONS.SafeMode
 		if SafeMode then
 			task.spawn(function()
@@ -3373,27 +3286,20 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
 			end
 		end
 		GLOBAL_ENV[placename] = nil
-		if StatusText then
+		if OPTIONS.ShowStatus then
 			task.spawn(function()
 				elapse_t = os.clock() - elapse_t
-				local Log10 = math.log10(elapse_t)
-				local ExtraTime = 10
 				if ok then
-					StatusText.Text = string.format("Saved! Time %.3f seconds; Size %s", elapse_t, get_size_format())
-					StatusText.TextColor3 = Color3.new(0, 1)
-					task.wait(Log10 * 2 + ExtraTime)
+					send_notification(
+                        "SaveInstance",
+                        string.format("Saved! Time %.3f seconds; Size %s", elapse_t, get_size_format()),
+                        10
+                    )
 				else
-					if Loading then
-						task.cancel(Loading)
-						Loading = nil
-					end
-					StatusText.Text = "Failed! Check F9 console for more info"
-					StatusText.TextColor3 = Color3.new(1)
+					send_notification("SaveInstance", "Failed! Check F9 console for more info", 10)
 					warn("Error found while saving:")
 					warn(err)
-					task.wait(Log10 + ExtraTime)
 				end
-				StatusText:Destroy()
 			end)
 		end
 
