@@ -1700,7 +1700,7 @@ local function synsaveinstance(CustomOptions, CustomOptions2)
         pcall(service.StarterGui.SetCore, service.StarterGui, "SendNotification", {
             Title = title,
             Text = text,
-            Duration = duration or 5,
+            Duration = duration or 1,
         })
     end
 
